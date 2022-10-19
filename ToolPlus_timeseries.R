@@ -4,8 +4,6 @@ library(dplyr)
 library(ggplot2)
 Sys.setlocale('LC_TIME', 'English')
 
-# outputday<-dt1_day[, c('time', 'detid', 'flow', 'occ', 'k=0.3,r=0.45,m=2', 'abs_error_k=0.3,r=0.45,m=2', 'rel_error_k=0.3,r=0.45,m=2', 'k=0.4,r=0.2,m=1.25', 'abs_error_k=0.4,r=0.2,m=1.25', 'rel_error_k=0.4,r=0.2,m=1.25')]
-# write.csv(outputday, file = '2105_day.csv')
 
 options(shiny.maxRequestSize=30*1024^2)
 
