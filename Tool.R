@@ -43,9 +43,6 @@ server <- function(input, output,session) {
   })
   
   # 1. Availability: count missing data per day by name (datetime) of uploaded files 
-  # ToDo: layout enhancement
-  #       order by descend (auto done); minus each 00:00 data number (done); convert outcome from number to percentage (done)
-  #       if possible: result for every month
   output$count1 <- renderText({ 
     req(input$file)
     num_days <- 0
@@ -80,7 +77,6 @@ server <- function(input, output,session) {
   
   
   # 2. Completeness: count missing values in each file
-  # ToDo: percentage conversion (done)
   output$count2 <- renderText({ 
     req(input$file)
     df_myfiles <- as.data.frame(myfiles())
@@ -93,7 +89,6 @@ server <- function(input, output,session) {
   })
   
   # 3. Consistency: whether format of each file complies  
-  # ToDo: check the performance of this combined two steps 
   output$count3 <- renderText({ 
     req(input$file)
     df <- as.data.frame(myfiles())
@@ -286,7 +281,6 @@ server <- function(input, output,session) {
   
    output$count7 <- renderText({
      req(input$file)
-#    dt <- fread(input$file$datapath)
      dt <- as.data.frame(myfiles())
      percent_score30 <- sum(dt$score == 30)/nrow(dt)
      
