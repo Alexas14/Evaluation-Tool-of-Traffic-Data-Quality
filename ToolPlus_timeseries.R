@@ -40,8 +40,8 @@ server <- function(input, output) {
 
     colors <- c('time-flow' = 'orange', 'time-occupancy' = 'blue')
     ggplot(list_dt[[paste0(input$id)]], aes(x=time)) +
-      geom_line( aes(y=flow, color = 'time-flow'), size=0.5) + 
       geom_line( aes(y=occ, color = 'time-occupancy'), size=0.5) +
+      geom_line( aes(y=flow, color = 'time-flow'), size=0.5) + 
       scale_y_continuous('flow [veh]', sec.axis = sec_axis(~., name = 'occupancy [%]')) +
       labs(x = 'time [date hh:mm]', title = 'Diagram of time-flow and time-occupancy relationships', subtitle = input$id, color = 'lines') + 
       scale_color_manual(values = colors)
