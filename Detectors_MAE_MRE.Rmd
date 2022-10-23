@@ -86,7 +86,6 @@ det_day <- ts_day[, list(mean_ARE = mean(ARE, na.rm = TRUE), mean_ABE = mean(ABE
 ```{r}
 ts_night <- dt1_night[, c('time', 'detid', 'flow', 'occ', 'k=0.15,r=0.4,m=2', 'abs_error_k=0.15,r=0.4,m=2', 'rel_error_k=0.15,r=0.4,m=2')]
 ts_night <- setnames(ts_night, c('time', 'detid', 'flow', 'occ', 'predict', 'ABE', 'ARE'))
-
 ts_night[is.na(ts_night)] = 0.6
 det_night <- ts_night[, list(mean_ARE = mean(ARE, na.rm = TRUE), mean_ABE = mean(ABE, na.rm = TRUE)), by = detid]
 ```
