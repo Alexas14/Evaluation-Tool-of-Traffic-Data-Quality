@@ -1,0 +1,95 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(data.table)
+library(ggplot2)
+```
+
+```{r}
+setwd("N:/Tool_updated/EvaluationTool/Months")
+filenames <- list.files("21-05", pattern="*.csv", full.names=TRUE)
+dt <- rbindlist(lapply(filenames, fread))
+dt <- dt[, c('time', 'detid', 'flow', 'occ')]
+summary(dt)
+```
+```{r}
+daynight <- function(datetime) {
+  paste(
+    c("night", "day", "night")[
+      cut(as.numeric(format(datetime, "%H%M")), c(0000, 0559, 2031, 2359))
+      ]
+  )
+}
+attributes(dt$time)$tzone <- "CET"
+dt$day_night <- daynight(dt$time)
+dt_day <- dt[day_night == 'day']
+dt_night <- dt[day_night == 'night']
+```
+
+```{r}
+loop1_day <- setnames(data.table(matrix(nrow = 0, ncol = 5)), c('k', 'r', 'm', 'abs_error_day', 'rel_error_day'))
+for (k in seq(0.1, 0.4, 0.1)){
+  for (r in seq(0.2, 1.2, 0.25)){
+    for(m in seq(1, 2, 0.25)){
+      
+  dt1_day <- dt_day[, paste0('k=', k, ',r=', r, ',m=', m):= k *50 * (1 - (occ/100) ^ r) ^ m * occ]
+  dt1_day <- dt_day[, paste0('abs_error_k=', k, ',r=', r, ',m=', m):= abs (flow - eval(as.symbol(paste0('k=', k, ',r=', r, ',m=', m))))]
+  dt1_day <- dt_day[, paste0('rel_error_k=', k, ',r=', r, ',m=', m):= eval(as.symbol(paste0('abs_error_k=', k, ',r=', r, ',m=', m))) / eval(as.symbol(paste0('k=', k, ',r=', r, ',m=', m)))]
+
+
+  dt1_day[is.na(dt1_day)] = 0
+  #  dt1_day[is.infinite(dt1_day)] = 0
+  invisible(lapply(names(dt1_day),function(.name) set(dt1_day, which(is.infinite(dt1_day[[.name]])), j = .name,value =0)))
+  abs_error_day <- mean(dt1_day[, eval(as.symbol(paste0('abs_error_k=', k, ',r=', r, ',m=', m)))], na.rm = TRUE)
+  rel_error_day <- mean(dt1_day[, eval(as.symbol(paste0('rel_error_k=', k, ',r=', r, ',m=', m)))], na.rm = TRUE)
+  
+  a <- data.table(k, r, m, abs_error_day, rel_error_day)
+  loop1_day <- rbind(loop1_day, a)
+    }
+  }
+}
+
+
+loop1_night <- setnames(data.table(matrix(nrow = 0, ncol = 5)), c('k', 'r', 'm', 'abs_error_night', 'rel_error_night'))
+for (k in seq(0.05, 0.15, 0.02)){
+  for (r in seq(0.2, 0.8, 0.2)){
+    for(m in seq(1, 2, 0.25)){
+
+    dt1_night <- dt_night[, paste0('k=', k, ',r=', r, ',m=', m):= k *50 * (1 - (occ/100) ^ r) ^ m * occ]
+    dt1_night <- dt_night[, paste0('abs_error_k=', k, ',r=', r, ',m=', m):= abs (flow - eval(as.symbol(paste0('k=', k, ',r=', r, ',m=', m))))]
+    dt1_night <- dt_night[, paste0('rel_error_k=', k, ',r=', r, ',m=', m):= eval(as.symbol(paste0('abs_error_k=', k, ',r=', r, ',m=', m))) / eval(as.symbol(paste0('k=', k, ',r=', r, ',m=', m))) ]
+    
+    dt1_night[is.na(dt1_night)] = 0
+    invisible(lapply(names(dt1_night),function(.name) set(dt1_night, which(is.infinite(dt1_night[[.name]])), j = .name,value = NA)))
+    abs_error_night <- mean(dt1_night[, eval(as.symbol(paste0('abs_error_k=', k, ',r=', r, ',m=', m)))], na.rm = TRUE)
+    rel_error_night <- mean(dt1_night[, eval(as.symbol(paste0('rel_error_k=', k, ',r=', r, ',m=', m)))], na.rm = TRUE)
+    
+    
+    a <- data.table(k, r, m, abs_error_night, rel_error_night)
+    loop1_night <- rbind(loop1_night, a)
+
+    }
+  }
+}
+```
+
+```{r}
+ts_day <- dt1_day[, c('time', 'detid', 'flow', 'occ', 'k=0.3,r=0.45,m=2', 'abs_error_k=0.3,r=0.45,m=2', 'rel_error_k=0.3,r=0.45,m=2')]
+ts_day <- setnames(ts_day, c('time', 'detid', 'flow', 'occ', 'predict', 'ABE', 'ARE'))
+det_day <- ts_day[, list(mean_ARE = mean(ARE, na.rm = TRUE), mean_ABE = mean(ABE, na.rm = TRUE)), by = detid]
+```
+
+```{r}
+ts_night <- dt1_night[, c('time', 'detid', 'flow', 'occ', 'k=0.15,r=0.4,m=2', 'abs_error_k=0.15,r=0.4,m=2', 'rel_error_k=0.15,r=0.4,m=2')]
+ts_night <- setnames(ts_night, c('time', 'detid', 'flow', 'occ', 'predict', 'ABE', 'ARE'))
+
+ts_night[is.na(ts_night)] = 0.6
+det_night <- ts_night[, list(mean_ARE = mean(ARE, na.rm = TRUE), mean_ABE = mean(ABE, na.rm = TRUE)), by = detid]
+```
