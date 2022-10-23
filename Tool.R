@@ -84,7 +84,7 @@ server <- function(input, output,session) {
     value_miss <- sum(is.na(df_myfiles))
     value_miss_p <- value_miss/length(filelist$name)
     percent_comp <- 1 - value_miss / nrow(df_myfiles)
-    paste('the completeness rate is: ', percent(percent_comp,accuracy = 0.0001), '. The number of missing value per data file is: ', value_miss_p, ' (Each data file contain records of 645 detectors).')
+    paste('the completeness rate is: ', percent(percent_comp,accuracy = 0.0001), '. The number of missing values per data file is: ', value_miss_p, ' (Each data file contain records of 645 detectors).')
     
   })
   
@@ -130,7 +130,7 @@ server <- function(input, output,session) {
     con_miss_p <- num / num_days
     
     if(ncol(df)==6)
-      paste('The consistency rate is: ', percent(percent_cons,accuracy = 0.0001), ". Number of data file with format doesn't comply with the standard per day is: ", con_miss_p, ' (The traffic data are recorded every 15 minutes and 95 sets of traffic data are obtained every day).')
+      paste('The consistency rate is: ', percent(percent_cons,accuracy = 0.0001), ". Number of data files don't comply with the standard format per day is: ", con_miss_p, ' (The traffic data are recorded every 15 minutes and 95 sets of traffic data are obtained every day).')
     else 
       paste('the number of columns is incorrect')      
   })
@@ -153,7 +153,7 @@ server <- function(input, output,session) {
     }
     percent_corr <- 1 - n_plausibility / nrow(df)
     
-    paste('The correctness rate is: ', percent(percent_corr,accuracy = 0.0001), '. The data failed the correctness check is shown below.')
+    paste('The correctness rate is: ', percent(percent_corr,accuracy = 0.0001), '. The data failed the correctness checks are shown below.')
   })
   
    output$table <- renderDataTable({
@@ -275,7 +275,7 @@ server <- function(input, output,session) {
      ABE_night <- min(loop1_night[, abs_error_night])
      ARE_night <- min(loop1_night[, rel_error_night])
      
-     paste('The average relative error of daytime is: ', percent(ARE_day, accuracy = 0.0001), ', the average absolute error of daytime is: ', ABE_day, ' vphpl. ', 'The average relative error of nighttime is: ', percent(ARE_night, accuracy = 0.0001), ', the average absolute error of nighttime is: ', ABE_night, ' vphpl.')
+     paste('The mean relative error of daytime is: ', percent(ARE_day, accuracy = 0.0001), ', the mean absolute error of daytime is: ', ABE_day, ' vphpl. ', 'The mean relative error of nighttime is: ', percent(ARE_night, accuracy = 0.0001), ', the mean absolute error of nighttime is: ', ABE_night, ' vphpl.')
      
    })
   
@@ -284,7 +284,7 @@ server <- function(input, output,session) {
      dt <- as.data.frame(myfiles())
      percent_score30 <- sum(dt$score == 30)/nrow(dt)
      
-     paste('The high score rate is: ', percent(percent_score30,accuracy = 0.0001), '. (score=30: real-time data, score=20: few real-time data, mainly history data, score=10: no real-time data). The numbers of data records with score less than 30 for each link are displayed below.')
+     paste('The high score rate is: ', percent(percent_score30,accuracy = 0.0001), '. (score=30: real-time data, score=20: few real-time data, mainly history data, score=10: no real-time data). The numbers of data records scoring less than 30 for each link are displayed below.')
    })
    
    output$table2 <- renderDataTable({
